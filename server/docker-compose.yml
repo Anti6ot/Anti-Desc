@@ -1,0 +1,15 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql_db
+    ports:
+      - "1433:1433" # Проброс порта для MSSQL
+    environment:
+      ACCEPT_EULA: "Y"             # Принятие лицензионного соглашения
+      SA_PASSWORD: "YourPassword123" # Пароль для пользователя sa
+    volumes:
+      - mssql_data:/var/opt/mssql # Том для сохранения данных
+
+volumes:
+  mssql_data:
+    driver: local
