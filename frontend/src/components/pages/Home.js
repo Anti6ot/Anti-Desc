@@ -1,11 +1,11 @@
 import React from "react";
 import NavBar from "../navBar/NavBar";
 
-export default function MyTickets() {
+export default function Home() {
   return (
     <>
       <NavBar />
-      <div>MyTickets</div>
+      <div>Home</div>
     </>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useContext, use } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
@@ -20,9 +20,8 @@ const Login = () => {
       // Проверьте, что сервер вернул token и user
       if (response.data.token && response.data.user) {
         const { token, user } = response.data;
-        console.log("login.js", token, user)
         login(token, user); // Передаем токен и данные пользователя в контекст
-        navigate("/dashboard"); // Перенаправление на страницу Dashboard
+        navigate("/home"); // Перенаправление на страницу Dashboard
       } else {
         console.error("Invalid response structure:", response.data);
         alert("Ошибка авторизации. Неверные данные.");

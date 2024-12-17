@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import NavBar from "../navBar/NavBar";
-import axios from "axios";
-import DashboardSubItem from "./subPages/DashboardSubItem";
-import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import DashboardSubItem from "./subPages/DashboardSubItem";
 
-const Dashboard = () => {
+export default function OutgoingTickets() {
+  const { user, token } = useContext(AuthContext);
   const [tickets, setTickets] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
-  const { token } = useContext(AuthContext); // Получаем токен из контекста
   const navigate = useNavigate();
 
   const toggleRow = (id) => {
@@ -20,10 +20,11 @@ const Dashboard = () => {
       // Создаем асинхронную функцию внутри useEffect
       const fetchData = async () => {
         try {
-          const response = await axios.get("http://localhost:5000/tickets", {
+          const response = await axios.get("http://localhost:5000/mytickets", {
             headers: {
               Authorization: `Bearer ${token}`, // Добавляем токен в заголовок
             },
+            params: { userId: user.id }, // Передаем userId как параметр запроса
           });
           setTickets(response.data); // Обновляем состояние после получения данных
         } catch (error) {
@@ -32,17 +33,19 @@ const Dashboard = () => {
             navigate("/login"); // Перенаправляем на страницу логина, если ошибка 401
           }
         }
-      }; // Загружаем билеты, если есть токен
+      };
       fetchData();
     } else {
       navigate("/login"); // Если нет токена, перенаправляем на страницу логина
     }
   }, [token, navigate]);
+  console.log(tickets);
+
 
   return (
     <>
       <NavBar />
-
+      <div>OutgoingTickets</div>
       <div className="container mt-5 ">
         <table className="table table-bordered border-tertiary">
           <thead>
@@ -65,7 +68,7 @@ const Dashboard = () => {
                   <td>{task.Description}</td>
                   <td>{task.Status}</td>
                 </tr>
-                {expandedRow === task.TicketID && (
+                {(expandedRow === task.TicketID && (user.role === "ExternalService" || user.role === "CartridgeService")) && (
                   <tr>
                     <td colSpan="5" className="bg-light">
                       <DashboardSubItem data={task} />
@@ -79,6 +82,4 @@ const Dashboard = () => {
       </div>
     </>
   );
-};
-
-export default Dashboard;
+}

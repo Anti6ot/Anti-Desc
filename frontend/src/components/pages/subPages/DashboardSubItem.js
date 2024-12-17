@@ -1,10 +1,10 @@
 import React, { useContext, useState } from "react";
-import { redactTaskDB } from "../../../services/service.databases";
+import { deleteTaskDB, redactTaskDB } from "../../../services/service.databases";
 import { AuthContext } from "../../../context/AuthContext";
 
 export default function DashboardSubItem({ data }) {
   const [task, setTask] = useState(data);
-  const { token } = useContext(AuthContext); 
+  const { token, user} = useContext(AuthContext); 
 
   // Обработчик изменения статуса задачи
   const handleStatusChange = (e) => {
@@ -36,9 +36,15 @@ export default function DashboardSubItem({ data }) {
   };
   const handleSaveOndb = (e) => {
     e.preventDefault();
-    redactTaskDB(task, token);
+    redactTaskDB(task, token, user);
     console.log("Отправляем данные:", task);
   };
+  const handleDelTickOndb = (e) => {
+    e.preventDefault();
+    deleteTaskDB(task, token);
+    console.log("Отправляем данные:", task);
+  };
+ 
   return (
     <>
       <div className="p-3">
@@ -82,8 +88,8 @@ export default function DashboardSubItem({ data }) {
             aria-label="Floating label select example"
             value={task.workerService}
             onChange={handleServiceChange}>
-            <option value="Сервис itMix">Сервис itMix</option>
-            <option value="User">
+            <option value="Admin">Сервис itMix</option>
+            <option value="CartridgeService">
               Сервис по обслуживаню картриджей
             </option>
             <option value="ExternalService">внешний Сервис</option>
@@ -92,11 +98,17 @@ export default function DashboardSubItem({ data }) {
         </div>
 
         <button
-          className="btn mt-3 btn-primary w-100"
+          className="btn mt-1 btn-primary w-50"
           type="submit"
           onClick={handleSaveOndb}>
           Изменить
         </button>
+        {user.role === "Admin" ? <button
+          className="btn mt-1 btn-danger w-50"
+          type="submit"
+          onClick={handleDelTickOndb}>
+          Удалить
+        </button> : ""}
       </div>
     </>
   );

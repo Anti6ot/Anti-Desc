@@ -10,25 +10,52 @@ import Login from "../components/Login";
 import Dashboard from "../components/pages/Dashboard";
 import ProtectedRoute from "../components/ProtectedRoute";
 import MyTickets from "../components/pages/MyTickets";
-
+import OutgoingTickets from "../components/pages/OutgoingTickets";
+import Home from "../components/pages/Home";
 function App() {
+
   return (
     <AuthProvider>
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route
-            path="/dashboard"
+            path="/home"
             element={
-              <ProtectedRoute allowedRoles={["Admin", "User", "ExternalService","CartridgeService"]}>
-                <Dashboard />
+              <ProtectedRoute
+                allowedRoles={["Admin","User", "ExternalService", "CartridgeService"]}>
+                <Home />;
               </ProtectedRoute>
             }
           />
-           <Route
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute
+                allowedRoles={["Admin"]}>
+                <Dashboard />;
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/outgoingtickets"
+            element={
+              <ProtectedRoute
+                allowedRoles={["Admin","User","ExternalService", "CartridgeService"]}>
+                <OutgoingTickets />;
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/mytickets"
             element={
-              <ProtectedRoute allowedRoles={["Admin", "User", "ExternalService","CartridgeService"]}>
+              <ProtectedRoute
+                allowedRoles={[
+                  "Admin",
+                  "User",
+                  "ExternalService",
+                  "CartridgeService",
+                ]}>
                 <MyTickets />
               </ProtectedRoute>
             }

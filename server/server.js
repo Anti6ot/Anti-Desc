@@ -37,18 +37,17 @@ app.post("/login", async (req, res) => {
     const user = result.recordset[0];
 
     if (user && bcrypt.compareSync(password, user.PasswordHash)) {
-    
       // Генерация токена с ролью
       const token = jwt.sign(
         { userId: user.UserID, role: user.Role },
         secretKey,
         { expiresIn: "1h" }
       );
-    
+
       // Возвращаем токен клиенту
-      res.json({ 
-        token, 
-        user: { id: user.UserID, email: user.Email, role: user.Role }
+      res.json({
+        token,
+        user: { id: user.UserID, email: user.Email, role: user.Role },
       });
     } else {
       res.status(401).send("Invalid credentials");
@@ -81,10 +80,9 @@ app.post("/addUser", async (req, res) => {
 });
 app.post(
   "/ticket",
-  checkRole(["Admin", "ExternalService", "User, CartridgeService"]),
+  checkRole(["Admin", "ExternalService", "User", "CartridgeService"]),
   async (req, res) => {
     try {
-      // console.log(req.body)
       const { title, description } = req.body;
       const userId = req.user.userId; // Берем ID пользователя из токена
       const pool = await poolConnect; // Убедиться, что подключение к базе выполнено
@@ -94,15 +92,12 @@ app.post(
       request.input("Title", sql.NVarChar, title);
       request.input("Description", sql.NVarChar, description);
       request.input("CreatedBy", sql.Int, userId);
-      request.query(
-        "INSERT INTO Tickets (Title, Description, CreatedBy) VALUES (@Title, @Description, @CreatedBy)"
-      );
 
       // // Выполняем SQL-запрос
       const result = await request.query(`
-        INSERT INTO Tickets (Title, Description)
-        OUTPUT INSERTED.TicketID, INSERTED.Title, INSERTED.Description, INSERTED.Status, INSERTED.CreatedAt
-        VALUES (@Title, @Description)
+        INSERT INTO Tickets (Title, Description, CreatedBy)
+        OUTPUT INSERTED.TicketID, INSERTED.Title, INSERTED.Description, INSERTED.Status, INSERTED.CreatedAt, INSERTED.CreatedBy
+        VALUES (@Title, @Description, @CreatedBy)
       `);
       res.status(201).json(result.recordset[0]);
     } catch (err) {
@@ -111,63 +106,95 @@ app.post(
     }
   }
 );
-app.get("/tickets", checkRole(["Admin"]), async (req, res) => {
-  try {
-    const pool = await poolConnect;
-    const request = pool.request();
-    const result = await request.query(
-      "SELECT * FROM Tickets ORDER BY CreatedAt DESC"
-    );
+app.get(
+  "/tickets",
+  checkRole(["Admin", "ExternalService", "User", "CartridgeService"]),
+  async (req, res) => {
+    try {
+      const pool = await poolConnect;
+      const request = pool.request();
+      const result = await request.query(
+        "SELECT * FROM Tickets ORDER BY CreatedAt DESC"
+      );
 
-    res.json(result.recordset);
-  } catch (err) {
-    console.error("Error fetching tickets:", err);
-    res.status(500).send("Internal Server Error");
-  }
-});
-app.patch("/tickets/:id", checkRole(["Admin", "ExternalService", "CartridgeService", "User"]), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status, title, description, workerService } = req.body;
-    if (!status) {
-      return res.status(400).send("Status is required");
+      res.json(result.recordset);
+    } catch (err) {
+      console.error("Error fetching tickets:", err);
+      res.status(500).send("Internal Server Error");
     }
-    const pool = await poolConnect;
+  }
+);
+app.get(
+  "/mytickets",
+  checkRole(["Admin", "ExternalService", "User", "CartridgeService"]),
+  async (req, res) => {
+    const { userId } = req.user;
 
-    // Создаем запрос на основе соединения из пула
-    const request = pool.request();
-    request.input("TicketID", sql.Int, id);
-    request.input("Description", sql.NVarChar, description);
-    request.input("Title", sql.NVarChar, title);
-    request.input("workerService", sql.NVarChar, workerService);
-    request.input("Status", sql.NVarChar, status);
+    try {
+      const pool = await poolConnect;
+      const request = pool.request();
+      request.input("CreatedBy", sql.Int, userId);
+      const result = await request.query(
+        "SELECT * FROM Tickets WHERE CreatedBy = @CreatedBy;"
+      );
 
-    // Выполняем SQL-запрос для обновления и выборки данных
-    const result = await request.query(`
+      res.json(result.recordset);
+    } catch (err) {
+      console.error("Error fetching tickets:", err);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+);
+app.patch(
+  "/tickets/:id",
+  checkRole(["Admin", "ExternalService", "CartridgeService", "User"]),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status, title, description, workerService, lastRedact } = req.body;
+      console.log(lastRedact)
+      if (!status) {
+        return res.status(400).send("Status is required");
+      }
+      const pool = await poolConnect;
+
+      // Создаем запрос на основе соединения из пула
+      const request = pool.request();
+      request.input("TicketID", sql.Int, id);
+      request.input("Description", sql.NVarChar, description);
+      request.input("Title", sql.NVarChar, title);
+      request.input("workerService", sql.NVarChar, workerService);
+      request.input("Status", sql.NVarChar, status);
+      request.input("LastRedact", sql.Int, lastRedact);
+
+
+      // Выполняем SQL-запрос для обновления и выборки данных
+      const result = await request.query(`
       UPDATE Tickets
       SET Status = @Status,
        Description = @Description,
        workerService = @workerService,
-       Title = @Title
+       Title = @Title,
+       LastRedact = @LastRedact
       WHERE TicketID = @TicketID;
       SELECT * FROM Tickets WHERE TicketID = @TicketID;
     `);
 
-    if (result.recordset.length === 0) {
-      res.status(404).send("Ticket not found");
-    } else {
-      res.json(result.recordset[0]);
+      if (result.recordset.length === 0) {
+        res.status(404).send("Ticket not found");
+      } else {
+        res.json(result.recordset[0]);
+      }
+    } catch (err) {
+      console.error("Error updating ticket:", err);
+      res.status(500).send("Internal Server Error");
     }
-  } catch (err) {
-    console.error("Error updating ticket:", err);
-    res.status(500).send("Internal Server Error");
   }
-});
+);
 
-app.delete("/tickets/:id", async (req, res) => {
+app.delete("/tickets/:id", checkRole(["Admin"]), async (req, res) => {
   try {
     const { id } = req.params; // Получаем ID тикета из URL
-
     const pool = await poolConnect; // Убеждаемся, что подключение установлено
     const request = pool.request();
     request.input("TicketID", sql.Int, id);
