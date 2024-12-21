@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardSubItem from "./subPages/DashboardSubItem";
 import useExpandedRow from "../../utils/expandRow";
 import BtnSort from "./buttons/BtnSort";
+import getRowClassName from "../../utils/getRowClassName";
 
 export default function OutgoingTickets() {
   const { user, token } = useContext(AuthContext);
@@ -67,7 +68,7 @@ console.log(user)
                 tickets.map((task) => (
                   <React.Fragment key={task.TicketID}>
                     <tr
-                      className="accordion-item"
+                      className={`${getRowClassName(task.Priority)}`}
                       key={task.TicketID}
                       onClick={() => toggleRow(task.TicketID)}>
                       <th scope="row">{task.TicketID}</th>

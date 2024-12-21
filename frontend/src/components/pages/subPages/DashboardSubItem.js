@@ -14,7 +14,6 @@ export default function DashboardSubItem({ data }) {
   const toggleRow = (id) => {
     setExpandedRow((prev) => (prev === id ? null : id));
   };
-
   // // Обработчик изменения статуса задачи
   // const handleStatusChange = (e) => {
   //   const newData = e.target.value;
@@ -53,7 +52,6 @@ export default function DashboardSubItem({ data }) {
     deleteTaskDB(task, token);
     console.log("Отправляем данные:", task);
   };
-
   return (
     <>
       <div className="p-3">
@@ -137,6 +135,23 @@ export default function DashboardSubItem({ data }) {
             <option value="lineTwo">Вторая линия</option>
           </select>
           <label htmlFor="floatingSelect">Выберете линию</label>
+        </div>
+        <div className="m-2 form-floating">
+          <select
+            className="form-select"
+            id="floatingSelect"
+            aria-label="Floating label select example"
+            value={task.Priority}
+            name="Priority"
+            onChange={handleInputChange}>
+            <option value="-" disabled>
+              -
+            </option>
+            <option value="high">Высокий</option>
+            <option value="medium">Средний</option>
+            <option value="low">Низкий</option>
+          </select>
+          <label htmlFor="floatingSelect">Выберете приоритет</label>
         </div>
 
         <button

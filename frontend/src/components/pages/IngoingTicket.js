@@ -6,6 +6,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import DashboardSubItem from "./subPages/DashboardSubItem";
 import BtnSort from "./buttons/BtnSort";
+import getRowClassName from "../../utils/getRowClassName";
 
 export default function IngoingTicket() {
   const [tickets, setTickets] = useState([]); // Состояние для отображаемых заявок
@@ -64,7 +65,7 @@ export default function IngoingTicket() {
                 tickets.map((task) => (
                   <React.Fragment key={task.TicketID}>
                     <tr
-                      className="accordion-item"
+                       className={`${getRowClassName(task.Priority)}`}
                       key={task.TicketID}
                       onClick={() => toggleRow(task.TicketID)}>
                       <th scope="row">{task.TicketID}</th>

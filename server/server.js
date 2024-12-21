@@ -46,7 +46,11 @@ app.post("/login", async (req, res) => {
 
     const user = result.recordset[0];
 
-    if (user && bcrypt.compareSync(password, user.PasswordHash) && user.IsActive) {
+    if (
+      user &&
+      bcrypt.compareSync(password, user.PasswordHash) &&
+      user.IsActive
+    ) {
       // Генерация токена с ролью
       const token = jwt.sign(
         { userId: user.UserID, role: user.Role },
@@ -104,7 +108,7 @@ app.post("/addUser", async (req, res) => {
       .input("Role", sql.NVarChar, role)
       .input("Adress", sql.NVarChar, filial)
       .input("FIO", sql.NVarChar, FIO)
-      .input("tel", sql.Int, tel)
+      .input("tel", sql.NVarChar, tel)
       .input("cabinet", sql.Int, cabinet)
       .input("jobTitle", sql.NVarChar, jobTitle).query(`
           INSERT INTO Users (Username, Email, PasswordHash, Role, Adress, FIO, tel, cabinet, jobTitle)
@@ -135,7 +139,6 @@ app.post(
       request.input("CreatedBy", sql.Int, userId);
       request.input("CreatedUser", sql.NVarChar, createUser);
       request.input("line", sql.NVarChar, line);
-
 
       // // Выполняем SQL-запрос
       const result = await request.query(`
@@ -233,6 +236,36 @@ app.get(
     }
   }
 );
+// app.get(
+//   "/slainfo/:id",
+//   checkRole(["Admin", "ExternalService", "User", "CartridgeService"]),
+//   async (req, res) => {
+//     try {
+//       const { id: CreatedBy } = req.params
+//       if (!CreatedBy) {
+//         return res.status(400).send("CreatedBy is required");
+//       }
+
+//       const pool = await poolConnect;
+//       const request = pool.request();
+//       request.input("CreatedBy", sql.Int, CreatedBy);
+
+//       const result = await request.query(`
+//         SELECT SLA
+//         FROM Users
+//         WHERE UserID = @CreatedBy;
+//       `);
+//       if (result.recordset.length === 0) {
+//         return res.status(404).send("Пользователь не найден");
+//       }
+
+//       res.json(result.recordset[0]); // Отправляем информацию о пользователе
+//     } catch (err) {
+//       console.error("Error fetching user info:", err);
+//       res.status(500).send("Internal Server Error");
+//     }
+//   }
+// );
 
 app.patch(
   "/tickets/:id",
@@ -240,13 +273,12 @@ app.patch(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { status, title, description, workerService, lastRedact, line } =
+      const { status, title, description, workerService, lastRedact, line, priority } =
         req.body;
       if (!status) {
         return res.status(400).send("Status is required");
       }
       const pool = await poolConnect;
-
       // Создаем запрос на основе соединения из пула
       const request = pool.request();
       request.input("TicketID", sql.Int, id);
@@ -256,7 +288,7 @@ app.patch(
       request.input("Status", sql.NVarChar, status);
       request.input("LastRedact", sql.Int, lastRedact);
       request.input("line", sql.NVarChar, line);
-
+      request.input("priority", sql.NVarChar, priority);
 
 
       // Выполняем SQL-запрос для обновления и выборки данных
@@ -267,7 +299,8 @@ app.patch(
        workerService = @workerService,
        Title = @Title,
        LastRedact = @LastRedact,
-       line = @line
+       line = @line,
+       Priority = @priority
 
       WHERE TicketID = @TicketID;
       SELECT * FROM Tickets WHERE TicketID = @TicketID;

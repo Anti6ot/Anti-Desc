@@ -4,17 +4,19 @@ import axios from "axios";
 import DashboardSubItem from "./subPages/DashboardSubItem";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import { getSLAinfo } from "../../services/service.databases";
+import getRowClassName from "../../utils/getRowClassName";
 
 const Dashboard = () => {
   const [tickets, setTickets] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const { token, user } = useContext(AuthContext); // Получаем токен из контекста
-
   const navigate = useNavigate();
 
   const toggleRow = (id) => {
     setExpandedRow((prev) => (prev === id ? null : id));
   };
+
 
   useEffect(() => {
     if (token) {
@@ -30,7 +32,16 @@ const Dashboard = () => {
           const filteredTickets = response.data.filter(
             (ticket) => ticket.LastRedact === null
           );
-          setTickets(filteredTickets); // Обновляем состояние после получения данных
+          // // Получаем SLA информацию для всех CreatedBy
+          // const slaInfoPromises = filteredTickets.map((ticket) =>
+          //   getSLAinfo(ticket.CreatedBy, token)
+          // );
+          // const slaInfo = await Promise.all(slaInfoPromises);
+          // const ticketsWithSLA = filteredTickets.map((ticket, index) => ({
+          //   ...ticket,
+          //   SLA: slaInfo[index]?.SLA || null, // Добавляем SLA к каждой задаче
+          // }));
+          setTickets(filteredTickets); // Сохраняем задачи с SLA
         } catch (error) {
           console.error("Error fetching tickets:", error);
           if (error.response && error.response.status === 401) {
@@ -43,6 +54,9 @@ const Dashboard = () => {
       navigate("/login"); // Если нет токена, перенаправляем на страницу логина
     }
   }, [token, navigate]);
+
+
+  console.log(tickets)
   return (
     <>
       <NavBar />
@@ -63,7 +77,7 @@ const Dashboard = () => {
             {tickets.map((task) => (
               <React.Fragment key={task.TicketID}>
                 <tr
-                  className="accordion-item"
+                  className={`${getRowClassName(task.Priority)}`}
                   key={task.TicketID}
                   onClick={() => toggleRow(task.TicketID)}>
                   <th scope="row">{task.TicketID}</th>

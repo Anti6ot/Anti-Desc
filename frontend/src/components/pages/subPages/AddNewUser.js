@@ -113,7 +113,7 @@ export default function AddNewUser({ handleCloseModalUser }) {
               </label>
               <input
                 className="form-control"
-                type="number"
+                type="text"
                 name="tel" // Поле для описания
                 onChange={handleInputChange} // Обновление состояния
               ></input>

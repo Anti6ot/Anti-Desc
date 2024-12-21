@@ -37,7 +37,7 @@ export async function createTaskDB(
 }
 
 export async function redactTaskDB(
-  { TicketID, Status, Description, Title, workerService, line },
+  { TicketID, Status, Description, Title, workerService, line, Priority },
   token,
   user
 ) {
@@ -57,6 +57,7 @@ export async function redactTaskDB(
         status: Status,
         line: line,
         lastRedact: userId,
+        priority: Priority,
       }),
     });
 
@@ -156,3 +157,25 @@ export async function getUserInfo(userId, token) {
     console.error("Ошибка сети:", err);
   }
 }
+// export async function getSLAinfo(CreatedBy, token) {
+//   try {
+//     // Отправляем запрос на сервер
+//     const response = await fetch(`${apiUrl}/slainfo/${CreatedBy}`, {
+//       method: "GET",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${token}`, // Добавляем токен в заголовок
+//       },
+//     });
+//     // Обрабатываем ответ сервера
+//     if (response.ok) {
+//       const gotCreatedByInfo = await response.json();
+//       return gotCreatedByInfo;
+//     } else {
+//       const errorMessage = await response.text();
+//       console.error("Ошибка при получении данных:", errorMessage);
+//     }
+//   } catch (err) {
+//     console.error("Ошибка сети:", err);
+//   }
+// }
