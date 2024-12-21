@@ -1,6 +1,10 @@
 const apiUrl = "http://localhost:5000";
 
-export async function createTaskDB({ Description, Title, Status }, token, user) {
+export async function createTaskDB(
+  { Description, Title, Status, line, workerService },
+  token,
+  user
+) {
   try {
     // Отправляем запрос на сервер
     const response = await fetch(`${apiUrl}/ticket`, {
@@ -13,7 +17,8 @@ export async function createTaskDB({ Description, Title, Status }, token, user) 
         title: Title ? Title : "undefined",
         description: Description ? Description : "undefined",
         status: Status ? Status : "Зарегестрированна",
-        workerService: "itMix",
+        workerService: workerService ? workerService : "itMix",
+        line: line ? line : "-",
         createUser: user.name,
       }),
     });
@@ -21,10 +26,10 @@ export async function createTaskDB({ Description, Title, Status }, token, user) 
     // Обрабатываем ответ сервера
     if (response.ok) {
       const updatedTask = await response.json();
-      console.log("Задача успешно обновлена:", updatedTask);
+      console.log("Задача успешно Добавленна:", updatedTask);
     } else {
       const errorMessage = await response.text();
-      console.error("Ошибка при обновлении задачи:", errorMessage);
+      console.error("Ошибка при добавлении задачи:", errorMessage);
     }
   } catch (err) {
     console.error("Ошибка сети:", err);
@@ -32,7 +37,7 @@ export async function createTaskDB({ Description, Title, Status }, token, user) 
 }
 
 export async function redactTaskDB(
-  { TicketID, Status, Description, Title, workerService },
+  { TicketID, Status, Description, Title, workerService, line },
   token,
   user
 ) {
@@ -50,6 +55,7 @@ export async function redactTaskDB(
         description: Description,
         workerService: workerService,
         status: Status,
+        line: line,
         lastRedact: userId,
       }),
     });
@@ -111,7 +117,7 @@ export async function createUserOnDB(
         tel: tel,
         FIO: FIO,
         cabinet: cabinet,
-        jobTitle: jobTitle
+        jobTitle: jobTitle,
       }),
     });
 
@@ -128,7 +134,7 @@ export async function createUserOnDB(
   }
 }
 
-export async function getUserInfo(userId, token){
+export async function getUserInfo(userId, token) {
   try {
     // Отправляем запрос на сервер
     const response = await fetch(`${apiUrl}/userInfo?userId=${userId}`, {
@@ -141,7 +147,7 @@ export async function getUserInfo(userId, token){
     // Обрабатываем ответ сервера
     if (response.ok) {
       const gotUserInfo = await response.json();
-      return gotUserInfo
+      return gotUserInfo;
     } else {
       const errorMessage = await response.text();
       console.error("Ошибка при получении данных:", errorMessage);

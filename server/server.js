@@ -46,7 +46,7 @@ app.post("/login", async (req, res) => {
 
     const user = result.recordset[0];
 
-    if (user && bcrypt.compareSync(password, user.PasswordHash)) {
+    if (user && bcrypt.compareSync(password, user.PasswordHash) && user.IsActive) {
       // Генерация токена с ролью
       const token = jwt.sign(
         { userId: user.UserID, role: user.Role },
@@ -55,7 +55,6 @@ app.post("/login", async (req, res) => {
       );
 
       // Возвращаем токен клиенту
-      console.log(user);
       res.json({
         token,
         user: {
@@ -69,6 +68,7 @@ app.post("/login", async (req, res) => {
           cabinet: user.cabinet,
           adress: user.Adress,
           isActive: user.IsActive,
+          SLA: user.SLA,
         },
       });
     } else {
@@ -121,7 +121,7 @@ app.post(
   checkRole(["Admin", "ExternalService", "User", "CartridgeService"]),
   async (req, res) => {
     try {
-      const { title, description, workerService, status, createUser } =
+      const { title, description, workerService, status, createUser, line } =
         req.body;
       const userId = req.user.userId; // Берем ID пользователя из токена
       const pool = await poolConnect; // Убедиться, что подключение к базе выполнено
@@ -134,12 +134,14 @@ app.post(
       request.input("workerService", sql.NVarChar, workerService);
       request.input("CreatedBy", sql.Int, userId);
       request.input("CreatedUser", sql.NVarChar, createUser);
+      request.input("line", sql.NVarChar, line);
+
 
       // // Выполняем SQL-запрос
       const result = await request.query(`
-        INSERT INTO Tickets (Title, Description, CreatedBy, CreatedUser, Status, workerService)
-        OUTPUT INSERTED.TicketID, INSERTED.Title, INSERTED.Description, INSERTED.Status, INSERTED.CreatedAt, INSERTED.CreatedBy, INSERTED.CreatedUser,INSERTED.workerService
-        VALUES (@Title, @Description, @CreatedBy, @CreatedUser, @Status, @workerService)
+        INSERT INTO Tickets (Title, Description, CreatedBy, CreatedUser, Status, workerService, line)
+        OUTPUT INSERTED.TicketID, INSERTED.Title, INSERTED.Description, INSERTED.Status, INSERTED.CreatedAt, INSERTED.CreatedBy, INSERTED.CreatedUser,INSERTED.workerService, INSERTED.line
+        VALUES (@Title, @Description, @CreatedBy, @CreatedUser, @Status, @workerService, @line)
       `);
       res.status(201).json(result.recordset[0]);
     } catch (err) {
@@ -238,7 +240,7 @@ app.patch(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { status, title, description, workerService, lastRedact } =
+      const { status, title, description, workerService, lastRedact, line } =
         req.body;
       if (!status) {
         return res.status(400).send("Status is required");
@@ -253,6 +255,9 @@ app.patch(
       request.input("workerService", sql.NVarChar, workerService);
       request.input("Status", sql.NVarChar, status);
       request.input("LastRedact", sql.Int, lastRedact);
+      request.input("line", sql.NVarChar, line);
+
+
 
       // Выполняем SQL-запрос для обновления и выборки данных
       const result = await request.query(`
@@ -261,7 +266,9 @@ app.patch(
        Description = @Description,
        workerService = @workerService,
        Title = @Title,
-       LastRedact = @LastRedact
+       LastRedact = @LastRedact,
+       line = @line
+
       WHERE TicketID = @TicketID;
       SELECT * FROM Tickets WHERE TicketID = @TicketID;
     `);

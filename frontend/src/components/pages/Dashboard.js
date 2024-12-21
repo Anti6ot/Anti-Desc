@@ -9,7 +9,7 @@ const Dashboard = () => {
   const [tickets, setTickets] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const { token, user } = useContext(AuthContext); // Получаем токен из контекста
- 
+
   const navigate = useNavigate();
 
   const toggleRow = (id) => {
@@ -25,26 +25,30 @@ const Dashboard = () => {
             headers: {
               Authorization: `Bearer ${token}`, // Добавляем токен в заголовок
             },
-            params: { Status: "Зарегестрированна" }
+            params: { Status: "Зарегестрированна" },
           });
-          setTickets(response.data); // Обновляем состояние после получения данных
+          const filteredTickets = response.data.filter(
+            (ticket) => ticket.LastRedact === null
+          );
+          setTickets(filteredTickets); // Обновляем состояние после получения данных
         } catch (error) {
           console.error("Error fetching tickets:", error);
           if (error.response && error.response.status === 401) {
             navigate("/login"); // Перенаправляем на страницу логина, если ошибка 401
           }
         }
-      }; // Загружаем билеты, если есть токен
+      }; // Загружаем задачи, если есть токен
       fetchData();
     } else {
       navigate("/login"); // Если нет токена, перенаправляем на страницу логина
     }
   }, [token, navigate]);
-
   return (
     <>
       <NavBar />
-      <div className="container d-flex justify-content-center align-items-center" style={{marginTop:"120px"}}>
+      <div
+        className="container d-flex justify-content-center align-items-center"
+        style={{ marginTop: "120px" }}>
         <table className="table table-bordered border-tertiary">
           <thead>
             <tr>
@@ -52,7 +56,7 @@ const Dashboard = () => {
               <th scope="col">Название Заявки</th>
               <th scope="col">Описание</th>
               <th scope="col">Статус</th>
-              <th scope="col">Создатель обращения</th>
+              <th scope="col">Регистратор</th>
             </tr>
           </thead>
           <tbody className="accordion" id="accordionFlushExample">

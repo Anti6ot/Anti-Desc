@@ -15,24 +15,24 @@ export default function DashboardSubItem({ data }) {
     setExpandedRow((prev) => (prev === id ? null : id));
   };
 
-  // Обработчик изменения статуса задачи
-  const handleStatusChange = (e) => {
-    const newData = e.target.value;
-    // Обновляем статус задачи
-    setTask((prev) => ({
-      ...prev,
-      Status: newData,
-    }));
-  };
-  // Обработчик изменения выбора сервиса
-  const handleServiceChange = (e) => {
-    const newData = e.target.value;
-    // Обновляем статус задачи
-    setTask((prev) => ({
-      ...prev,
-      workerService: newData,
-    }));
-  };
+  // // Обработчик изменения статуса задачи
+  // const handleStatusChange = (e) => {
+  //   const newData = e.target.value;
+  //   // Обновляем статус задачи
+  //   setTask((prev) => ({
+  //     ...prev,
+  //     Status: newData,
+  //   }));
+  // };
+  // // Обработчик изменения выбора сервиса
+  // const handleServiceChange = (e) => {
+  //   const newData = e.target.value;
+  //   // Обновляем статус задачи
+  //   setTask((prev) => ({
+  //     ...prev,
+  //     workerService: newData,
+  //   }));
+  // };
 
   // Обработчик изменения полей ввода
   const handleInputChange = (e) => {
@@ -86,10 +86,10 @@ export default function DashboardSubItem({ data }) {
               data-bs-target="#collapseOne"
               aria-expanded="true"
               aria-controls="collapseOne">
-              Информация о Абоненте 
+              Информация о Абоненте
             </button>
           </h2>
-          {expandedRow === task.TicketID && <UserInfo dataTask = {task} />}
+          {expandedRow === task.TicketID && <UserInfo dataTask={task} />}
         </div>
         <div className="m-2 form-floating">
           <select
@@ -97,8 +97,8 @@ export default function DashboardSubItem({ data }) {
             id="floatingSelect"
             aria-label="Floating label select example"
             value={task.Status}
-            name="Status" // Поле для описания
-            onChange={handleStatusChange}>
+            name="Status"
+            onChange={handleInputChange}>
             <option value="Зарегестрированна">Зарегестрированна</option>
             <option value="В работе">В работе</option>
             <option value="Завершена">Завершена</option>
@@ -111,8 +111,9 @@ export default function DashboardSubItem({ data }) {
             className="form-select"
             id="floatingSelect"
             aria-label="Floating label select example"
+            name="workerService"
             value={task.workerService}
-            onChange={handleServiceChange}>
+            onChange={handleInputChange}>
             <option value="itMix">Сервис itMix</option>
             <option value="CartridgeService">
               Сервис по обслуживаню картриджей
@@ -120,6 +121,22 @@ export default function DashboardSubItem({ data }) {
             <option value="ExternalService">внешний Сервис</option>
           </select>
           <label htmlFor="floatingSelect">Выберете исполнителя</label>
+        </div>
+        <div className="m-2 form-floating">
+          <select
+            className="form-select"
+            id="floatingSelect"
+            aria-label="Floating label select example"
+            value={task.line}
+            name="line"
+            onChange={handleInputChange}>
+            <option value="-" disabled>
+              -
+            </option>
+            <option value="lineOne">Первая линия</option>
+            <option value="lineTwo">Вторая линия</option>
+          </select>
+          <label htmlFor="floatingSelect">Выберете линию</label>
         </div>
 
         <button

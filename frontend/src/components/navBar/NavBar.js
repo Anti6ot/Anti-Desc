@@ -67,7 +67,7 @@ export default function NavBar() {
                 <>
                   <li className="nav-item">
                     <Link className="nav-link" to="/dashboard">
-                      Заявки
+                      Нераспределенные
                     </Link>
                   </li>
                   <li className="nav-item">
