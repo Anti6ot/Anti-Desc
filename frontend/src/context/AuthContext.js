@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }) => {
       setUser(userData); // Сохраняем данные пользователя в состоянии
       localStorage.setItem("user", JSON.stringify(userData)); // Сохраняем данные пользователя в localStorage
       localStorage.setItem("role", JSON.stringify(userData.role? userData.role : 'non a have user role')); // Сохраняем данные пользователя в localStorage
+      localStorage.setItem("name", JSON.stringify(userData.name? userData.name : 'non a have user name')); 
 
     }
   };
@@ -30,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
     localStorage.removeItem("role");
-
+    localStorage.removeItem("name");
   };
 
   const isAuthenticated = !!token;

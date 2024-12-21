@@ -8,7 +8,8 @@ import { AuthContext } from "../../context/AuthContext";
 const Dashboard = () => {
   const [tickets, setTickets] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
-  const { token } = useContext(AuthContext); // Получаем токен из контекста
+  const { token, user } = useContext(AuthContext); // Получаем токен из контекста
+ 
   const navigate = useNavigate();
 
   const toggleRow = (id) => {
@@ -20,10 +21,11 @@ const Dashboard = () => {
       // Создаем асинхронную функцию внутри useEffect
       const fetchData = async () => {
         try {
-          const response = await axios.get("http://localhost:5000/tickets", {
+          const response = await axios.get("http://localhost:5000/mytickets", {
             headers: {
               Authorization: `Bearer ${token}`, // Добавляем токен в заголовок
             },
+            params: { Status: "Зарегестрированна" }
           });
           setTickets(response.data); // Обновляем состояние после получения данных
         } catch (error) {
@@ -42,8 +44,7 @@ const Dashboard = () => {
   return (
     <>
       <NavBar />
-
-      <div className="container mt-5 ">
+      <div className="container d-flex justify-content-center align-items-center" style={{marginTop:"120px"}}>
         <table className="table table-bordered border-tertiary">
           <thead>
             <tr>
@@ -51,6 +52,7 @@ const Dashboard = () => {
               <th scope="col">Название Заявки</th>
               <th scope="col">Описание</th>
               <th scope="col">Статус</th>
+              <th scope="col">Создатель обращения</th>
             </tr>
           </thead>
           <tbody className="accordion" id="accordionFlushExample">
@@ -64,6 +66,7 @@ const Dashboard = () => {
                   <td>{task.Title}</td>
                   <td>{task.Description}</td>
                   <td>{task.Status}</td>
+                  <td>{task.CreatedUser}</td>
                 </tr>
                 {expandedRow === task.TicketID && (
                   <tr>

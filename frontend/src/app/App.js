@@ -9,9 +9,9 @@ import { AuthProvider } from "../context/AuthContext";
 import Login from "../components/Login";
 import Dashboard from "../components/pages/Dashboard";
 import ProtectedRoute from "../components/ProtectedRoute";
-import MyTickets from "../components/pages/MyTickets";
 import OutgoingTickets from "../components/pages/OutgoingTickets";
 import Home from "../components/pages/Home";
+import IngoingTicket from "../components/pages/IngoingTicket";
 function App() {
 
   return (
@@ -37,26 +37,22 @@ function App() {
               </ProtectedRoute>
             }
           />
+         
+          <Route
+            path="/ingoingticket"
+            element={
+              <ProtectedRoute
+                allowedRoles={["Admin","User","ExternalService", "CartridgeService"]}>
+                <IngoingTicket />;
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/outgoingtickets"
             element={
               <ProtectedRoute
                 allowedRoles={["Admin","User","ExternalService", "CartridgeService"]}>
                 <OutgoingTickets />;
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/mytickets"
-            element={
-              <ProtectedRoute
-                allowedRoles={[
-                  "Admin",
-                  "User",
-                  "ExternalService",
-                  "CartridgeService",
-                ]}>
-                <MyTickets />
               </ProtectedRoute>
             }
           />

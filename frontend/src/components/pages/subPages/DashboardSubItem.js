@@ -1,10 +1,19 @@
 import React, { useContext, useState } from "react";
-import { deleteTaskDB, redactTaskDB } from "../../../services/service.databases";
+import {
+  deleteTaskDB,
+  redactTaskDB,
+} from "../../../services/service.databases";
 import { AuthContext } from "../../../context/AuthContext";
+import UserInfo from "./UserInfo";
 
 export default function DashboardSubItem({ data }) {
   const [task, setTask] = useState(data);
-  const { token, user} = useContext(AuthContext); 
+  const { token, user } = useContext(AuthContext);
+
+  const [expandedRow, setExpandedRow] = useState(null);
+  const toggleRow = (id) => {
+    setExpandedRow((prev) => (prev === id ? null : id));
+  };
 
   // Обработчик изменения статуса задачи
   const handleStatusChange = (e) => {
@@ -44,7 +53,7 @@ export default function DashboardSubItem({ data }) {
     deleteTaskDB(task, token);
     console.log("Отправляем данные:", task);
   };
- 
+
   return (
     <>
       <div className="p-3">
@@ -68,13 +77,29 @@ export default function DashboardSubItem({ data }) {
           value={task.Description} // Связь с состоянием
           onChange={handleInputChange} // Обновление состояния
         ></textarea>
+        <div className="card m-2" onClick={() => toggleRow(task.TicketID)}>
+          <h2 className="accordion-header">
+            <button
+              className="accordion-button"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseOne"
+              aria-expanded="true"
+              aria-controls="collapseOne">
+              Информация о Абоненте 
+            </button>
+          </h2>
+          {expandedRow === task.TicketID && <UserInfo dataTask = {task} />}
+        </div>
         <div className="m-2 form-floating">
           <select
             className="form-select"
             id="floatingSelect"
             aria-label="Floating label select example"
             value={task.Status}
+            name="Status" // Поле для описания
             onChange={handleStatusChange}>
+            <option value="Зарегестрированна">Зарегестрированна</option>
             <option value="В работе">В работе</option>
             <option value="Завершена">Завершена</option>
             <option value="Приостановленна">Приостановленна</option>
@@ -88,7 +113,7 @@ export default function DashboardSubItem({ data }) {
             aria-label="Floating label select example"
             value={task.workerService}
             onChange={handleServiceChange}>
-            <option value="Admin">Сервис itMix</option>
+            <option value="itMix">Сервис itMix</option>
             <option value="CartridgeService">
               Сервис по обслуживаню картриджей
             </option>
@@ -103,12 +128,16 @@ export default function DashboardSubItem({ data }) {
           onClick={handleSaveOndb}>
           Изменить
         </button>
-        {user.role === "Admin" ? <button
-          className="btn mt-1 btn-danger w-50"
-          type="submit"
-          onClick={handleDelTickOndb}>
-          Удалить
-        </button> : ""}
+        {user.role === "Admin" ? (
+          <button
+            className="btn mt-1 btn-danger w-50"
+            type="submit"
+            onClick={handleDelTickOndb}>
+            Удалить
+          </button>
+        ) : (
+          ""
+        )}
       </div>
     </>
   );

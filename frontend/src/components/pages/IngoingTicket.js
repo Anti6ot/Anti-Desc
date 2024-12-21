@@ -1,18 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
 import NavBar from "../navBar/NavBar";
 import { AuthContext } from "../../context/AuthContext";
+import useExpandedRow from "../../utils/expandRow";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import DashboardSubItem from "./subPages/DashboardSubItem";
-import useExpandedRow from "../../utils/expandRow";
 
-export default function OutgoingTickets() {
-  const { user, token } = useContext(AuthContext);
+export default function IngoingTicket() {
   const [tickets, setTickets] = useState([]);
+  const { user, token } = useContext(AuthContext);
   const { expandedRow, toggleRow } = useExpandedRow();
-
   const navigate = useNavigate();
-
   useEffect(() => {
     if (token) {
       // Создаем асинхронную функцию внутри useEffect
@@ -22,9 +20,10 @@ export default function OutgoingTickets() {
             headers: {
               Authorization: `Bearer ${token}`, // Добавляем токен в заголовок
             },
-            params: { userId: user.id }, // Передаем userId как параметр запроса
-          });
-          setTickets(response.data); // Обновляем состояние после получения данных
+            params: { workerService: user.name }, // Передаем userId как параметр запроса
+          })
+          const filteredTickets = response.data.filter(ticket => ticket.Status !== "Зарегестрированна");
+          setTickets(filteredTickets); // Обновляем состояние после получения данных
         } catch (error) {
           console.error("Error fetching tickets:", error);
           if (error.response && error.response.status === 401) {
@@ -37,10 +36,12 @@ export default function OutgoingTickets() {
       navigate("/login"); // Если нет токена, перенаправляем на страницу логина
     }
   }, [token, navigate]);
+  console.log(tickets);
 
   return (
     <>
       <NavBar />
+      <div>IngoingTicket</div>
       <div
         className="container d-flex justify-content-center align-items-center"
         style={{ marginTop: "120px" }}>
@@ -55,7 +56,7 @@ export default function OutgoingTickets() {
             </tr>
           </thead>
           <tbody className="accordion" id="accordionFlushExample">
-            {tickets.length !== 0 ? (
+            {tickets.length !== 0  ? (
               tickets.map((task) => (
                 <React.Fragment key={task.TicketID}>
                   <tr

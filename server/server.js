@@ -6,6 +6,7 @@ const app = express();
 const jwt = require("jsonwebtoken"); // Импорт библиотеки
 const secretKey = "yourSecretKey";
 const { checkRole } = require("./middleware/middleware.js");
+const os = require("os");
 app.use(cors());
 app.use(express.json());
 
@@ -24,9 +25,18 @@ const verifyPassword = async (password, hash) => {
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
+  // const clientIp =
+  // req.headers["x-forwarded-for"] || // Если за прокси
+  // req.connection.remoteAddress || // IPv6 или локальные
+  // req.socket.remoteAddress ||
+  // (req.connection.socket ? req.connection.socket.remoteAddress : null);
+
+  // const hostname = os.hostname();
+  // console.log(hostname)
+  // console.log("IP-адрес клиента:",  clientIp);
+
   try {
     const pool = await poolConnect; // Убедиться, что подключение к базе выполнено
-
     const request = pool.request();
     request.input("Email", sql.NVarChar, email);
 
@@ -45,9 +55,21 @@ app.post("/login", async (req, res) => {
       );
 
       // Возвращаем токен клиенту
+      console.log(user);
       res.json({
         token,
-        user: { id: user.UserID, email: user.Email, role: user.Role },
+        user: {
+          id: user.UserID,
+          email: user.Email,
+          role: user.Role,
+          name: user.Username,
+          fio: user.FIO,
+          tel: user.tel,
+          jobTitle: user.jobTitle,
+          cabinet: user.cabinet,
+          adress: user.Adress,
+          isActive: user.IsActive,
+        },
       });
     } else {
       res.status(401).send("Invalid credentials");
@@ -59,7 +81,18 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/addUser", async (req, res) => {
-  const { username, email, password, role } = req.body;
+  const {
+    username,
+    email,
+    password,
+    role,
+    filial,
+    FIO,
+    tel,
+    cabinet,
+    jobTitle,
+  } = req.body;
+
   try {
     const pool = await poolConnect; // Убедиться, что подключение к базе выполнено
     const hashedPassword = await hashPassword(password); // Хешируем пароль
@@ -68,11 +101,16 @@ app.post("/addUser", async (req, res) => {
       .input("Username", sql.NVarChar, username)
       .input("Email", sql.NVarChar, email)
       .input("PasswordHash", sql.NVarChar, hashedPassword)
-      .input("Role", sql.NVarChar, role).query(`
-          INSERT INTO Users (Username, Email, PasswordHash, Role)
-          VALUES (@Username, @Email, @PasswordHash, @Role);
+      .input("Role", sql.NVarChar, role)
+      .input("Adress", sql.NVarChar, filial)
+      .input("FIO", sql.NVarChar, FIO)
+      .input("tel", sql.Int, tel)
+      .input("cabinet", sql.Int, cabinet)
+      .input("jobTitle", sql.NVarChar, jobTitle).query(`
+          INSERT INTO Users (Username, Email, PasswordHash, Role, Adress, FIO, tel, cabinet, jobTitle)
+          VALUES (@Username, @Email, @PasswordHash, @Role, @Adress, @FIO, @tel, @cabinet, @jobTitle);
         `);
-    res.status(201);
+    res.status(201).json(result.recordset[0]);
     console.log("User added:", result);
   } catch (err) {
     console.error("Error adding user:", err);
@@ -83,7 +121,8 @@ app.post(
   checkRole(["Admin", "ExternalService", "User", "CartridgeService"]),
   async (req, res) => {
     try {
-      const { title, description } = req.body;
+      const { title, description, workerService, status, createUser } =
+        req.body;
       const userId = req.user.userId; // Берем ID пользователя из токена
       const pool = await poolConnect; // Убедиться, что подключение к базе выполнено
 
@@ -91,13 +130,16 @@ app.post(
       const request = pool.request();
       request.input("Title", sql.NVarChar, title);
       request.input("Description", sql.NVarChar, description);
+      request.input("Status", sql.NVarChar, status);
+      request.input("workerService", sql.NVarChar, workerService);
       request.input("CreatedBy", sql.Int, userId);
+      request.input("CreatedUser", sql.NVarChar, createUser);
 
       // // Выполняем SQL-запрос
       const result = await request.query(`
-        INSERT INTO Tickets (Title, Description, CreatedBy)
-        OUTPUT INSERTED.TicketID, INSERTED.Title, INSERTED.Description, INSERTED.Status, INSERTED.CreatedAt, INSERTED.CreatedBy
-        VALUES (@Title, @Description, @CreatedBy)
+        INSERT INTO Tickets (Title, Description, CreatedBy, CreatedUser, Status, workerService)
+        OUTPUT INSERTED.TicketID, INSERTED.Title, INSERTED.Description, INSERTED.Status, INSERTED.CreatedAt, INSERTED.CreatedBy, INSERTED.CreatedUser,INSERTED.workerService
+        VALUES (@Title, @Description, @CreatedBy, @CreatedUser, @Status, @workerService)
       `);
       res.status(201).json(result.recordset[0]);
     } catch (err) {
@@ -129,30 +171,75 @@ app.get(
   checkRole(["Admin", "ExternalService", "User", "CartridgeService"]),
   async (req, res) => {
     const { userId } = req.user;
+    const { workerService } = req.query;
+    const { Status } = req.query;
 
     try {
       const pool = await poolConnect;
       const request = pool.request();
-      request.input("CreatedBy", sql.Int, userId);
-      const result = await request.query(
-        "SELECT * FROM Tickets WHERE CreatedBy = @CreatedBy;"
-      );
 
-      res.json(result.recordset);
+      if (workerService) {
+        // Если указан workerService, фильтруем по нему
+        request.input("WorkerService", sql.NVarChar, workerService);
+        const result = await request.query(
+          "SELECT * FROM Tickets WHERE workerService = @WorkerService;"
+        );
+        res.json(result.recordset);
+      } else if (Status) {
+        request.input("Status", sql.NVarChar, Status);
+        const result = await request.query(
+          "SELECT * FROM Tickets WHERE Status = @Status;"
+        );
+        res.json(result.recordset);
+      } else {
+        request.input("CreatedBy", sql.Int, userId);
+        const result = await request.query(
+          "SELECT * FROM Tickets WHERE CreatedBy = @CreatedBy;"
+        );
+        res.json(result.recordset);
+      }
     } catch (err) {
       console.error("Error fetching tickets:", err);
       res.status(500).send("Internal Server Error");
     }
   }
 );
+
+app.get(
+  "/userInfo",
+  checkRole(["Admin", "ExternalService", "User", "CartridgeService"]),
+  async (req, res) => {
+    try {
+      const { userId } = req.query; // Получаем userId из query строки
+      const pool = await poolConnect;
+      const request = pool.request();
+      request.input("CreatedBy", sql.Int, userId);
+      const result = await request.query(`
+        SELECT Adress, UserName, CreatedAt, Email, FIO, tel, jobTitle, cabinet
+        FROM Users
+        WHERE UserID = @CreatedBy;
+      `);
+
+      if (result.recordset.length === 0) {
+        return res.status(404).send("Пользователь не найден");
+      }
+
+      res.json(result.recordset[0]); // Отправляем информацию о пользователе
+    } catch (err) {
+      console.error("Error fetching user info:", err);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+);
+
 app.patch(
   "/tickets/:id",
   checkRole(["Admin", "ExternalService", "CartridgeService", "User"]),
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { status, title, description, workerService, lastRedact } = req.body;
-      console.log(lastRedact)
+      const { status, title, description, workerService, lastRedact } =
+        req.body;
       if (!status) {
         return res.status(400).send("Status is required");
       }
@@ -166,7 +253,6 @@ app.patch(
       request.input("workerService", sql.NVarChar, workerService);
       request.input("Status", sql.NVarChar, status);
       request.input("LastRedact", sql.Int, lastRedact);
-
 
       // Выполняем SQL-запрос для обновления и выборки данных
       const result = await request.query(`
