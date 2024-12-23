@@ -8,6 +8,8 @@ import useExpandedRow from "../../utils/expandRow";
 import BtnSort from "./buttons/BtnSort";
 import getRowClassName from "../../utils/getRowClassName";
 
+const api_url = process.env.REACT_APP_API_URL;
+
 export default function OutgoingTickets() {
   const { user, token } = useContext(AuthContext);
   const [tickets, setTickets] = useState([]);
@@ -21,7 +23,7 @@ export default function OutgoingTickets() {
       // Создаем асинхронную функцию внутри useEffect
       const fetchData = async () => {
         try {
-          const response = await axios.get("http://localhost:5000/mytickets", {
+          const response = await axios.get(`${api_url}/mytickets`, {
             headers: {
               Authorization: `Bearer ${token}`, // Добавляем токен в заголовок
             },
@@ -41,7 +43,6 @@ export default function OutgoingTickets() {
       navigate("/login"); // Если нет токена, перенаправляем на страницу логина
     }
   }, [token, navigate]);
-console.log(user)
   return (
     <>
       <NavBar />

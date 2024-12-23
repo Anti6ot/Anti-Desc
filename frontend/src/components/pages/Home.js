@@ -14,8 +14,7 @@ export default function Home() {
     Телефон: user.tel,
     Адрес: user.adress,
   };
-  const [userInfo, setUserInfo] = useState(transformedObject);
-  console.log(userInfo);
+  const [userInfo] = useState(transformedObject);
   return (
     <>
       <NavBar />
@@ -35,9 +34,9 @@ export default function Home() {
               ))}
             </tbody>
           </table>
-          <button className="btn btn-primary mt-3">Изменить</button>
+          <button className="btn btn-outline-secondary mt-3">Изменить</button>
           <button
-            className="btn btn-primary mt-3"
+            className="btn btn-outline-success mt-3"
             onClick={() => add100tickents(user, token)}>
             Добавить 100 заявок
           </button>

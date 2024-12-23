@@ -8,18 +8,21 @@ import DashboardSubItem from "./subPages/DashboardSubItem";
 import BtnSort from "./buttons/BtnSort";
 import getRowClassName from "../../utils/getRowClassName";
 
+const api_url = process.env.REACT_APP_API_URL;
+
 export default function IngoingTicket() {
   const [tickets, setTickets] = useState([]); // Состояние для отображаемых заявок
   const [allTickets, setAllTickets] = useState([]); // Состояние для всех заявок (неизменяемое)
   const { user, token } = useContext(AuthContext);
   const { expandedRow, toggleRow } = useExpandedRow();
   const navigate = useNavigate();
+
   useEffect(() => {
     if (token) {
       // Создаем асинхронную функцию внутри useEffect
       const fetchData = async () => {
         try {
-          const response = await axios.get("http://localhost:5000/mytickets", {
+          const response = await axios.get(`${api_url}/mytickets`, {
             headers: {
               Authorization: `Bearer ${token}`, // Добавляем токен в заголовок
             },
@@ -65,7 +68,7 @@ export default function IngoingTicket() {
                 tickets.map((task) => (
                   <React.Fragment key={task.TicketID}>
                     <tr
-                       className={`${getRowClassName(task.Priority)}`}
+                      className={`${getRowClassName(task.Priority)}`}
                       key={task.TicketID}
                       onClick={() => toggleRow(task.TicketID)}>
                       <th scope="row">{task.TicketID}</th>

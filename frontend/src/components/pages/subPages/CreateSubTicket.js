@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { createTaskDB, redactTaskDB } from "../../../services/service.databases";
+import React, { useContext, useState } from "react";
+import { createTaskDB } from "../../../services/service.databases";
 import { AuthContext } from "../../../context/AuthContext";
 
 export default function CreateSubTicket({ handleCloseModal }) {
@@ -14,9 +14,6 @@ export default function CreateSubTicket({ handleCloseModal }) {
       [name]: value,
     }));
   };
-  useEffect(() => {
-    console.log(task);
-  }, [task]);
 
   const handleSaveOndb = (e) => {
     e.preventDefault();
@@ -76,7 +73,7 @@ export default function CreateSubTicket({ handleCloseModal }) {
               </button>
               <button
                 type="button"
-                className="btn btn-primary"
+                className="btn btn-success"
                 onClick={handleSaveOndb}>
                 Отправить
               </button>

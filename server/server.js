@@ -25,15 +25,6 @@ const verifyPassword = async (password, hash) => {
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  // const clientIp =
-  // req.headers["x-forwarded-for"] || // Если за прокси
-  // req.connection.remoteAddress || // IPv6 или локальные
-  // req.socket.remoteAddress ||
-  // (req.connection.socket ? req.connection.socket.remoteAddress : null);
-
-  // const hostname = os.hostname();
-  // console.log(hostname)
-  // console.log("IP-адрес клиента:",  clientIp);
 
   try {
     const pool = await poolConnect; // Убедиться, что подключение к базе выполнено
@@ -374,12 +365,21 @@ app.delete("/tickets/:id", checkRole(["Admin"]), async (req, res) => {
     const request = pool.request();
     request.input("TicketID", sql.Int, id);
 
-    const result = await request.query(`
-        DELETE FROM Tickets
-        WHERE TicketID = @TicketID;
-      `);
+    // Удаляем все комментарии, связанные с тикетом
+    await request.query(`
+      DELETE FROM Comments
+      WHERE TicketID = @TicketID;
+    `);
 
-    // Если удалено 0 строк, значит тикет с таким ID не найден
+   
+    
+    // Теперь удаляем сам тикет
+    const result = await request.query(`
+      DELETE FROM Tickets
+      WHERE TicketID = @TicketID;
+    `);
+
+     // Если удалено 0 строк, значит тикет с таким ID не найден
     if (result.rowsAffected[0] === 0) {
       return res.status(404).send("Ticket not found");
     }

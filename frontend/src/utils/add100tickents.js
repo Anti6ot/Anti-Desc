@@ -108,13 +108,11 @@ export default function add100tickents(user, token) {
       Description: "Не удается подключиться к внешним API для интеграции.",
     },
   ];
-//   console.log(user, token)
 
   // Функция для добавления заявок на сервер
   async function addTasksToServer(tasks) {
     for (let i = 0; i < tasks.length; i++) {
       try {
-        // console.log(tasks[i])
         const response = await createTaskDB(tasks[i], token, user);
         if (response.ok) {  
           console.log(`Заявка "${tasks[i].Title}" успешно добавлена.`);

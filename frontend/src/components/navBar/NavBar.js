@@ -130,7 +130,7 @@ export default function NavBar() {
                 aria-label="Search"
               />
               <button
-                className="btn btn-outline-primary"
+                className="btn btn-outline-info"
                 type="button"
                 data-mdb-ripple-color="dark">
                 Поиск

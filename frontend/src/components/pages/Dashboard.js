@@ -7,10 +7,12 @@ import { AuthContext } from "../../context/AuthContext";
 import { getSLAinfo } from "../../services/service.databases";
 import getRowClassName from "../../utils/getRowClassName";
 
+const api_url = process.env.REACT_APP_API_URL;
+
 const Dashboard = () => {
   const [tickets, setTickets] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
-  const { token, user } = useContext(AuthContext); // Получаем токен из контекста
+  const { token } = useContext(AuthContext); // Получаем токен из контекста
   const navigate = useNavigate();
 
   const toggleRow = (id) => {
@@ -22,7 +24,7 @@ const Dashboard = () => {
       // Создаем асинхронную функцию внутри useEffect
       const fetchData = async () => {
         try {
-          const response = await axios.get("http://localhost:5000/mytickets", {
+          const response = await axios.get(`${api_url}/mytickets`, {
             headers: {
               Authorization: `Bearer ${token}`, // Добавляем токен в заголовок
             },

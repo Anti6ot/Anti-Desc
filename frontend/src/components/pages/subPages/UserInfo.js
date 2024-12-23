@@ -22,7 +22,6 @@ export default function UserInfo({ dataTask }) {
   if (!userInfo) {
     return <p>Загрузка данных...</p>;
   }
-  console.log(userInfo);
   return (
     <>
       <div className="card">

@@ -21,7 +21,6 @@ export default function AddNewUser({ handleCloseModalUser }) {
       ...prev,
       [name]: value,
     }));
-    console.log(userAcc);
   };
   const handleCreateUserOndb = (e) => {
     e.preventDefault();

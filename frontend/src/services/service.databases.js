@@ -1,4 +1,4 @@
-const apiUrl = "http://localhost:5000";
+const api_url = process.env.REACT_APP_API_URL;
 
 export async function createTaskDB(
   { Description, Title, Status, line, workerService },
@@ -7,7 +7,7 @@ export async function createTaskDB(
 ) {
   try {
     // Отправляем запрос на сервер
-    const response = await fetch(`${apiUrl}/ticket`, {
+    const response = await fetch(`${api_url}/ticket`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +44,7 @@ export async function redactTaskDB(
   const userId = user.id;
   try {
     // Отправляем запрос на сервер
-    const response = await fetch(`${apiUrl}/tickets/${TicketID}`, {
+    const response = await fetch(`${api_url}/tickets/${TicketID}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -77,7 +77,7 @@ export async function redactTaskDB(
 export async function deleteTaskDB({ TicketID }, token) {
   try {
     // Отправляем запрос на сервер
-    const response = await fetch(`${apiUrl}/tickets/${TicketID}`, {
+    const response = await fetch(`${api_url}/tickets/${TicketID}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -103,7 +103,7 @@ export async function createUserOnDB(
 ) {
   try {
     // Отправляем запрос на сервер
-    const response = await fetch(`${apiUrl}/addUser`, {
+    const response = await fetch(`${api_url}/addUser`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -138,7 +138,7 @@ export async function createUserOnDB(
 export async function getUserInfo(userId, token) {
   try {
     // Отправляем запрос на сервер
-    const response = await fetch(`${apiUrl}/userInfo?userId=${userId}`, {
+    const response = await fetch(`${api_url}/userInfo?userId=${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -160,7 +160,7 @@ export async function getUserInfo(userId, token) {
 
 export async function createCommentDB(ticketId, newComment, token, user) {
   try {
-    const response = await fetch(`${apiUrl}/comments`, {
+    const response = await fetch(`${api_url}/comments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -185,7 +185,7 @@ export async function createCommentDB(ticketId, newComment, token, user) {
 
 export async function getComments(ticketId, token) {
   try {
-    const response = await fetch(`${apiUrl}/comments/${ticketId}`, {
+    const response = await fetch(`${api_url}/comments/${ticketId}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -206,7 +206,7 @@ export async function getComments(ticketId, token) {
 // export async function getSLAinfo(CreatedBy, token) {
 //   try {
 //     // Отправляем запрос на сервер
-//     const response = await fetch(`${apiUrl}/slainfo/${CreatedBy}`, {
+//     const response = await fetch(`${api_url}/slainfo/${CreatedBy}`, {
 //       method: "GET",
 //       headers: {
 //         "Content-Type": "application/json",
