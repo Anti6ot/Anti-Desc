@@ -236,45 +236,95 @@ app.get(
     }
   }
 );
-// app.get(
-//   "/slainfo/:id",
-//   checkRole(["Admin", "ExternalService", "User", "CartridgeService"]),
-//   async (req, res) => {
-//     try {
-//       const { id: CreatedBy } = req.params
-//       if (!CreatedBy) {
-//         return res.status(400).send("CreatedBy is required");
-//       }
+// comments
+app.get(
+  "/comments/:id",
+  checkRole(["Admin", "ExternalService", "User", "CartridgeService"]),
+  async (req, res) => {
+    try {
+      const { id: ticketId } = req.params; // Получаем ID тикета из параметров
 
-//       const pool = await poolConnect;
-//       const request = pool.request();
-//       request.input("CreatedBy", sql.Int, CreatedBy);
+      if (!ticketId) {
+        return res.status(400).send("TicketID is required");
+      }
 
-//       const result = await request.query(`
-//         SELECT SLA
-//         FROM Users
-//         WHERE UserID = @CreatedBy;
-//       `);
-//       if (result.recordset.length === 0) {
-//         return res.status(404).send("Пользователь не найден");
-//       }
+  
+      const pool = await poolConnect; // Убедимся, что есть подключение к БД
+      const request = pool.request();
 
-//       res.json(result.recordset[0]); // Отправляем информацию о пользователе
-//     } catch (err) {
-//       console.error("Error fetching user info:", err);
-//       res.status(500).send("Internal Server Error");
-//     }
-//   }
-// );
+      // Передаем параметр в запрос
+      request.input("TicketID", sql.Int, ticketId);
 
+      // Запрос для получения комментариев по TicketID
+      const result = await request.query(`
+        SELECT * FROM Comments
+        WHERE TicketID = @TicketID
+        ORDER BY CreatedAt DESC
+      `);
+
+      // Если комментариев нет
+      if (result.recordset.length === 0) {
+        return res.status(404).send("Комментарии не найдены");
+      }
+
+      // Возвращаем все комментарии к указанному тикету
+      res.json(result.recordset);
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+);
+app.post(
+  "/comments",
+  checkRole(["Admin", "ExternalService", "User", "CartridgeService"]),
+  async (req, res) => {
+    try {
+      const { ticketId, content, author } = req.body;
+      const pool = await poolConnect; // Убедиться, что подключение к базе выполнено
+      const request = pool.request();
+
+      if (!ticketId || !content || !author) {
+        return res.status(400).send("Все поля обязательны для заполнения.");
+      }
+
+      if (!ticketId) {
+        return res.status(400).send("TicketID is required");
+      }
+
+      request.input("TicketID", sql.Int, ticketId);
+      request.input("Author", sql.NVarChar, author);
+      request.input("Content", sql.NVarChar, content);
+
+      // Выполняем SQL-запрос
+      const result = await request.query(`
+        INSERT INTO Comments (TicketID, Author, Content)
+        OUTPUT INSERTED.CommentID, INSERTED.TicketID, INSERTED.Author, INSERTED.Content
+        VALUES (@TicketID, @Author, @Content)
+      `);
+
+      res.status(201).json(result.recordset[0]);
+    } catch (err) {
+      console.error("Error inserting comments:", err);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+);
 app.patch(
   "/tickets/:id",
   checkRole(["Admin", "ExternalService", "CartridgeService", "User"]),
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { status, title, description, workerService, lastRedact, line, priority } =
-        req.body;
+      const {
+        status,
+        title,
+        description,
+        workerService,
+        lastRedact,
+        line,
+        priority,
+      } = req.body;
       if (!status) {
         return res.status(400).send("Status is required");
       }
@@ -289,7 +339,6 @@ app.patch(
       request.input("LastRedact", sql.Int, lastRedact);
       request.input("line", sql.NVarChar, line);
       request.input("priority", sql.NVarChar, priority);
-
 
       // Выполняем SQL-запрос для обновления и выборки данных
       const result = await request.query(`

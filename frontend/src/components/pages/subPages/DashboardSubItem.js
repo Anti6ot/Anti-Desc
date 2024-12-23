@@ -5,6 +5,7 @@ import {
 } from "../../../services/service.databases";
 import { AuthContext } from "../../../context/AuthContext";
 import UserInfo from "./UserInfo";
+import Comments from "../../comments/Comments";
 
 export default function DashboardSubItem({ data }) {
   const [task, setTask] = useState(data);
@@ -153,7 +154,7 @@ export default function DashboardSubItem({ data }) {
           </select>
           <label htmlFor="floatingSelect">Выберете приоритет</label>
         </div>
-
+        <Comments ticketId={task.TicketID} token={token} />
         <button
           className="btn mt-1 btn-primary w-50"
           type="submit"

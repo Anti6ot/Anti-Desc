@@ -157,6 +157,52 @@ export async function getUserInfo(userId, token) {
     console.error("Ошибка сети:", err);
   }
 }
+
+export async function createCommentDB(ticketId, newComment, token, user) {
+  try {
+    const response = await fetch(`${apiUrl}/comments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Добавляем токен в заголовок
+      },
+      body: JSON.stringify({
+        ticketId,
+        content: newComment,
+        author: user.fio,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to create comment");
+    }
+
+    return await response.json(); // Возвращаем данные о созданном комментарии
+  } catch (err) {
+    console.error("Error adding comment:", err);
+    throw err;
+  }
+}
+
+export async function getComments(ticketId, token) {
+  try {
+    const response = await fetch(`${apiUrl}/comments/${ticketId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    
+    if (response.status === 404) {
+      return [];
+    }
+
+    const gotComments = await response.json();
+    return gotComments;
+  } catch (err) {
+    console.error("Error fetching comments:", err);
+    return err
+  }
+}
 // export async function getSLAinfo(CreatedBy, token) {
 //   try {
 //     // Отправляем запрос на сервер

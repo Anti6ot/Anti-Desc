@@ -17,7 +17,6 @@ const Dashboard = () => {
     setExpandedRow((prev) => (prev === id ? null : id));
   };
 
-
   useEffect(() => {
     if (token) {
       // Создаем асинхронную функцию внутри useEffect
@@ -55,8 +54,6 @@ const Dashboard = () => {
     }
   }, [token, navigate]);
 
-
-  console.log(tickets)
   return (
     <>
       <NavBar />
