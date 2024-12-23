@@ -23,10 +23,14 @@ export default function NavBar() {
         <div className="container-fluid">
           <span className="navbar-brand">
             <img
-              src="https://itmix.pro/wp-content/uploads/2017/06/itmix-shapka-1024x199.png"
-              height="60"
+              src="https://github.com/Anti6ot/Logo/blob/main/antidesclogo.png?raw=true"
               alt=""
               loading="lazy"
+              style={{
+                height: "50px", // высота картинки
+                width: "150px", // ширина картинки
+                objectFit: "cover", // обрезать картинку, сохраняя пропорции
+              }}
             />
           </span>
 
