@@ -21,7 +21,9 @@ export default function Home() {
       <div
         className="container d-flex justify-content-center align-items-center"
         style={{ marginTop: "180px" }}>
-        <div className="card" style={{ width: "28rem" }}>
+        <div className="card" style={{ width: "30rem", padding: "5px" }}>
+          <h2>Информация о пользователе</h2>
+
           <table className="table table-bordered border-tertiary">
             <tbody className="accordion" id="accordionFlushExample">
               {Object.entries(userInfo).map(([key, userInf]) => (

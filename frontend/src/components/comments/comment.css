@@ -1,0 +1,60 @@
+/* Контейнер для окна комментариев */
+.form-container{
+    position: relative;
+    bottom:  0;
+    left: 0;
+    width: 100%;
+    margin: 20px;
+    max-height: 300px; /* Максимальная высота окна */
+    background-color: #f3f3f3; /* Светлый фон */
+    border-top: 1px solid #ddd; /* Разделительная линия */
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.5); /* Тень для эстетики */
+    overflow-y: auto; /* Скроллинг при большом количестве комментариев */
+    padding: 10px;
+    z-index: 1000; /* Поверх других элементов */
+  }
+  
+  
+  /* Список комментариев */
+  .comments-list {
+    list-style-type: none;
+    background-color: #dadcde; /* Светлый фон */
+    padding: 2px;
+    margin: 0;
+  }
+  
+  .comment-item {
+    margin-bottom: 2px;
+    padding: 5px 2px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  /* Поле ввода и кнопка */
+  .add-comment {
+    display: flex;
+    gap: 10px; /* Расстояние между элементами */
+    margin-top: 10px;
+  }
+  
+  .comment-input {
+    flex-grow: 1; /* Растягивается на всю ширину */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .btn {
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .btn:hover {
+    background-color: #0056b3;
+  }
+  

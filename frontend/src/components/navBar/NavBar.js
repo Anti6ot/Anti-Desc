@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import CreateSubTicket from "../pages/subPages/CreateSubTicket";
 import AddNewUser from "../pages/subPages/AddNewUser";
+// import SearchOnNav from "../pages/subPages/SearchOnNav";
 
-export default function NavBar() {
+export default function NavBar({tckts}) {
   const { logout, user } = useContext(AuthContext);
   const [showModal, setShowModal] = useState(false);
   const [showModalUser, setshowModalUser] = useState(false);
@@ -15,6 +16,7 @@ export default function NavBar() {
   // Открытие и закрытие модального окна
   const handleOpenModalUser = () => setshowModalUser(true);
   const handleCloseModalUser = () => setshowModalUser(false);
+
   return (
     <>
       <nav
@@ -121,21 +123,7 @@ export default function NavBar() {
                 <CreateSubTicket handleCloseModal={handleCloseModal} />
               )}
             </div>
-
-            <form className="d-flex input-group w-auto">
-              <input
-                type="search"
-                className="form-control"
-                placeholder="название заявки"
-                aria-label="Search"
-              />
-              <button
-                className="btn btn-outline-info"
-                type="button"
-                data-mdb-ripple-color="dark">
-                Поиск
-              </button>
-            </form>
+            {/* <SearchOnNav data={tckts}/> */}
           </div>
         </div>
       </nav>

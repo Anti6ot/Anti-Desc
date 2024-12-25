@@ -15,25 +15,6 @@ export default function DashboardSubItem({ data }) {
   const toggleRow = (id) => {
     setExpandedRow((prev) => (prev === id ? null : id));
   };
-  // // Обработчик изменения статуса задачи
-  // const handleStatusChange = (e) => {
-  //   const newData = e.target.value;
-  //   // Обновляем статус задачи
-  //   setTask((prev) => ({
-  //     ...prev,
-  //     Status: newData,
-  //   }));
-  // };
-  // // Обработчик изменения выбора сервиса
-  // const handleServiceChange = (e) => {
-  //   const newData = e.target.value;
-  //   // Обновляем статус задачи
-  //   setTask((prev) => ({
-  //     ...prev,
-  //     workerService: newData,
-  //   }));
-  // };
-
   // Обработчик изменения полей ввода
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -43,10 +24,14 @@ export default function DashboardSubItem({ data }) {
       [name]: value,
     }));
   };
-  const handleSaveOndb = (e) => {
+  const handleSaveOndb = async (e) => {
     e.preventDefault();
-    redactTaskDB(task, token, user);
-    console.log("Отправляем данные:", task);
+    try {
+      await redactTaskDB(task, token, user);
+      console.log("Задача сохранена:", task);
+    } catch (error) {
+      console.error("Ошибка сохранения задачи:", error);
+    }
   };
   const handleDelTickOndb = (e) => {
     e.preventDefault();
@@ -76,85 +61,89 @@ export default function DashboardSubItem({ data }) {
           value={task.Description} // Связь с состоянием
           onChange={handleInputChange} // Обновление состояния
         ></textarea>
-        <div className="card m-2" onClick={() => toggleRow(task.TicketID)}>
-          <h2 className="accordion-header">
-            <button
-              className="accordion-button"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#collapseOne"
-              aria-expanded="true"
-              aria-controls="collapseOne">
-              Информация о Абоненте
-            </button>
-          </h2>
-          {expandedRow === task.TicketID && <UserInfo dataTask={task} />}
+        <div className="d-flex">
+          <div className="select-container">
+            <div className="card m-2" onClick={() => toggleRow(task.TicketID)}>
+              <h2 className="accordion-header">
+                <button
+                  className="accordion-button"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseOne"
+                  aria-expanded="true"
+                  aria-controls="collapseOne">
+                  Информация о Абоненте
+                </button>
+              </h2>
+              {expandedRow === task.TicketID && <UserInfo dataTask={task} />}
+            </div>
+            <div className="m-2 form-floating">
+              <select
+                className="form-select"
+                id="floatingSelect"
+                aria-label="Floating label select example"
+                value={task.Status}
+                name="Status"
+                onChange={handleInputChange}>
+                <option value="Зарегестрированна">Зарегестрированна</option>
+                <option value="В работе">В работе</option>
+                <option value="Завершена">Завершена</option>
+                <option value="Приостановленна">Приостановленна</option>
+              </select>
+              <label htmlFor="floatingSelect">Выберете статус</label>
+            </div>
+            <div className="m-2 form-floating">
+              <select
+                className="form-select"
+                id="floatingSelect"
+                aria-label="Floating label select example"
+                name="workerService"
+                value={task.workerService}
+                onChange={handleInputChange}>
+                <option value="itMix">Сервис itMix</option>
+                <option value="CartridgeService">
+                  Сервис по обслуживаню картриджей
+                </option>
+                <option value="ExternalService">внешний Сервис</option>
+              </select>
+              <label htmlFor="floatingSelect">Выберете исполнителя</label>
+            </div>
+            <div className="m-2 form-floating">
+              <select
+                className="form-select"
+                id="floatingSelect"
+                aria-label="Floating label select example"
+                value={task.line}
+                name="line"
+                onChange={handleInputChange}>
+                <option value="-" disabled>
+                  -
+                </option>
+                <option value="lineOne">Первая линия</option>
+                <option value="lineTwo">Вторая линия</option>
+              </select>
+              <label htmlFor="floatingSelect">Выберете линию</label>
+            </div>
+            <div className="m-2 form-floating">
+              <select
+                className="form-select"
+                id="floatingSelect"
+                aria-label="Floating label select example"
+                value={task.Priority}
+                name="Priority"
+                onChange={handleInputChange}>
+                <option value="-" disabled>
+                  -
+                </option>
+                <option value="high">Высокий</option>
+                <option value="medium">Средний</option>
+                <option value="low">Низкий</option>
+              </select>
+              <label htmlFor="floatingSelect">Выберете приоритет</label>
+            </div>
+          </div>
+          <Comments ticketId={task.TicketID} token={token} />
         </div>
-        <div className="m-2 form-floating">
-          <select
-            className="form-select"
-            id="floatingSelect"
-            aria-label="Floating label select example"
-            value={task.Status}
-            name="Status"
-            onChange={handleInputChange}>
-            <option value="Зарегестрированна">Зарегестрированна</option>
-            <option value="В работе">В работе</option>
-            <option value="Завершена">Завершена</option>
-            <option value="Приостановленна">Приостановленна</option>
-          </select>
-          <label htmlFor="floatingSelect">Выберете статус</label>
-        </div>
-        <div className="m-2 form-floating">
-          <select
-            className="form-select"
-            id="floatingSelect"
-            aria-label="Floating label select example"
-            name="workerService"
-            value={task.workerService}
-            onChange={handleInputChange}>
-            <option value="itMix">Сервис itMix</option>
-            <option value="CartridgeService">
-              Сервис по обслуживаню картриджей
-            </option>
-            <option value="ExternalService">внешний Сервис</option>
-          </select>
-          <label htmlFor="floatingSelect">Выберете исполнителя</label>
-        </div>
-        <div className="m-2 form-floating">
-          <select
-            className="form-select"
-            id="floatingSelect"
-            aria-label="Floating label select example"
-            value={task.line}
-            name="line"
-            onChange={handleInputChange}>
-            <option value="-" disabled>
-              -
-            </option>
-            <option value="lineOne">Первая линия</option>
-            <option value="lineTwo">Вторая линия</option>
-          </select>
-          <label htmlFor="floatingSelect">Выберете линию</label>
-        </div>
-        <div className="m-2 form-floating">
-          <select
-            className="form-select"
-            id="floatingSelect"
-            aria-label="Floating label select example"
-            value={task.Priority}
-            name="Priority"
-            onChange={handleInputChange}>
-            <option value="-" disabled>
-              -
-            </option>
-            <option value="high">Высокий</option>
-            <option value="medium">Средний</option>
-            <option value="low">Низкий</option>
-          </select>
-          <label htmlFor="floatingSelect">Выберете приоритет</label>
-        </div>
-        <Comments ticketId={task.TicketID} token={token} />
         <button
           className="btn mt-1 btn-primary w-50"
           type="submit"

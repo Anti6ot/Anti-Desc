@@ -203,25 +203,4 @@ export async function getComments(ticketId, token) {
     return err
   }
 }
-// export async function getSLAinfo(CreatedBy, token) {
-//   try {
-//     // Отправляем запрос на сервер
-//     const response = await fetch(`${api_url}/slainfo/${CreatedBy}`, {
-//       method: "GET",
-//       headers: {
-//         "Content-Type": "application/json",
-//         Authorization: `Bearer ${token}`, // Добавляем токен в заголовок
-//       },
-//     });
-//     // Обрабатываем ответ сервера
-//     if (response.ok) {
-//       const gotCreatedByInfo = await response.json();
-//       return gotCreatedByInfo;
-//     } else {
-//       const errorMessage = await response.text();
-//       console.error("Ошибка при получении данных:", errorMessage);
-//     }
-//   } catch (err) {
-//     console.error("Ошибка сети:", err);
-//   }
-// }
+

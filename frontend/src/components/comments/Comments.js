@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { createCommentDB, getComments } from "../../services/service.databases";
 import { AuthContext } from "../../context/AuthContext";
+import "./comment.css";
 
 export default function Comments({ ticketId, token }) {
   const { user } = useContext(AuthContext);
@@ -12,7 +13,7 @@ export default function Comments({ ticketId, token }) {
     async function fetchComment() {
       try {
         const comment = await getComments(ticketId, token);
-        setComments(comment);
+        setComments(comment.reverse());
       } catch (error) {
         setError("Не удалось загрузить комментарии.");
       }
@@ -37,33 +38,37 @@ export default function Comments({ ticketId, token }) {
   };
 
   return (
-    <div className="comments-section">
-      <h5>Комментарии</h5>
-      {error && <div className="alert alert-danger">{error}</div>}
+    <div className="form-container">
+      <h2>Комментарии</h2>
+      <div className="comments-section">
+        {error && <div className="alert alert-danger">{error}</div>}
 
-      {/* Список комментариев */}
-      <ul className="list-group mb-3">
-        {comments
-          ? comments.map((comment) => (
-              <li key={comment.CommentID} className="list-group-item">
-                <strong>{comment.Author}</strong>: {comment.Content}
-              </li>
-            ))
-          : ""}
-      </ul>
+        <div className="fixed-comments-container">
+          {/* Список комментариев */}
+          <ul className="comments-list">
+            {comments
+              ?.slice() // Создаем копию массива, чтобы избежать изменения оригинального
+              .map((comment) => (
+                <li key={comment.CommentID} className="comment-item">
+                  <strong>{comment.Author}</strong>: {comment.Content}
+                </li>
+              ))}
+          </ul>
 
-      {/* Поле ввода и кнопка для добавления комментария */}
-      <div className="input-group">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Введите комментарий"
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-        />
-        <button className="btn btn-primary m-1" onClick={handleAddComment}>
-          Добавить
-        </button>
+          {/* Поле ввода и кнопка для добавления комментария */}
+          <div className="add-comment">
+            <input
+              type="text"
+              className="comment-input"
+              placeholder="Введите комментарий"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+            />
+            <button className="btn btn-primary" onClick={handleAddComment}>
+              Добавить
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

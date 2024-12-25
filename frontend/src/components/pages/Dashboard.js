@@ -4,8 +4,9 @@ import axios from "axios";
 import DashboardSubItem from "./subPages/DashboardSubItem";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-import { getSLAinfo } from "../../services/service.databases";
 import getRowClassName from "../../utils/getRowClassName";
+import formatDate from "../../utils/formatDate";
+// import updRenderTickets from "../../utils/updRenderTickets";
 
 const api_url = process.env.REACT_APP_API_URL;
 
@@ -14,7 +15,7 @@ const Dashboard = () => {
   const [expandedRow, setExpandedRow] = useState(null);
   const { token } = useContext(AuthContext); // Получаем токен из контекста
   const navigate = useNavigate();
-
+ 
   const toggleRow = (id) => {
     setExpandedRow((prev) => (prev === id ? null : id));
   };
@@ -33,15 +34,6 @@ const Dashboard = () => {
           const filteredTickets = response.data.filter(
             (ticket) => ticket.LastRedact === null
           );
-          // // Получаем SLA информацию для всех CreatedBy
-          // const slaInfoPromises = filteredTickets.map((ticket) =>
-          //   getSLAinfo(ticket.CreatedBy, token)
-          // );
-          // const slaInfo = await Promise.all(slaInfoPromises);
-          // const ticketsWithSLA = filteredTickets.map((ticket, index) => ({
-          //   ...ticket,
-          //   SLA: slaInfo[index]?.SLA || null, // Добавляем SLA к каждой задаче
-          // }));
           setTickets(filteredTickets); // Сохраняем задачи с SLA
         } catch (error) {
           console.error("Error fetching tickets:", error);
@@ -56,9 +48,11 @@ const Dashboard = () => {
     }
   }, [token, navigate]);
 
+  console.log(tickets)
   return (
     <>
-      <NavBar />
+      <NavBar tckts={tickets}/>
+
       <div
         className="container d-flex justify-content-center align-items-center"
         style={{ marginTop: "120px" }}>
@@ -69,6 +63,7 @@ const Dashboard = () => {
               <th scope="col">Название Заявки</th>
               <th scope="col">Описание</th>
               <th scope="col">Статус</th>
+              <th scope="col">Дата регистрации</th>
               <th scope="col">Регистратор</th>
             </tr>
           </thead>
@@ -83,11 +78,12 @@ const Dashboard = () => {
                   <td>{task.Title}</td>
                   <td>{task.Description}</td>
                   <td>{task.Status}</td>
+                  <td>{formatDate(task.CreatedAt)}</td>
                   <td>{task.CreatedUser}</td>
                 </tr>
                 {expandedRow === task.TicketID && (
                   <tr>
-                    <td colSpan="5" className="bg-light">
+                    <td colSpan="6" className="bg-light">
                       <DashboardSubItem data={task} />
                     </td>
                   </tr>

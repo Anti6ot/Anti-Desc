@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardSubItem from "./subPages/DashboardSubItem";
 import BtnSort from "./buttons/BtnSort";
 import getRowClassName from "../../utils/getRowClassName";
+import formatDate from "../../utils/formatDate";
 
 const api_url = process.env.REACT_APP_API_URL;
 
@@ -45,7 +46,8 @@ export default function IngoingTicket() {
 
   return (
     <>
-      <NavBar />
+      <NavBar tckts={tickets} />
+
       <div className="container" style={{ marginTop: "120px" }}>
         <BtnSort
           tickets={tickets}
@@ -60,6 +62,7 @@ export default function IngoingTicket() {
                 <th scope="col">Название Заявки</th>
                 <th scope="col">Описание</th>
                 <th scope="col">Статус</th>
+                <th scope="col">Дата регистрации</th>
                 <th scope="col">Регистратор</th>
               </tr>
             </thead>
@@ -75,6 +78,7 @@ export default function IngoingTicket() {
                       <td>{task.Title}</td>
                       <td>{task.Description}</td>
                       <td>{task.Status}</td>
+                      <td>{formatDate(task.CreatedAt)}</td>
                       <td>{task.CreatedUser}</td>
                     </tr>
                     {expandedRow === task.TicketID &&
@@ -82,7 +86,7 @@ export default function IngoingTicket() {
                         user.role === "CartridgeService" ||
                         user.role === "Admin") && (
                         <tr>
-                          <td colSpan="5" className="bg-light">
+                          <td colSpan="6" className="bg-light">
                             <DashboardSubItem data={task} />
                           </td>
                         </tr>

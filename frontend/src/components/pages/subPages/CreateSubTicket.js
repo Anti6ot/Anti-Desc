@@ -19,6 +19,7 @@ export default function CreateSubTicket({ handleCloseModal }) {
     e.preventDefault();
     createTaskDB(task, token, user);
     console.log("Отправляем данные:", task, user);
+    handleCloseModal()
   };
   return (
     <>

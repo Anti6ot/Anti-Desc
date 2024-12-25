@@ -38,7 +38,7 @@ const Login = () => {
       className="d-flex justify-content-center align-items-center"
       style={{ minHeight: "100vh" }}>
       <form onSubmit={handleSubmit}>
-        <h2 className="mb-3">Войти</h2>
+        <h2 className="mb-3">Авторизация</h2>
         <input
           className="form-control mb-3"
           type="email"
@@ -54,7 +54,7 @@ const Login = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
         <button className="btn btn-primary w-100" type="submit">
-          Login
+          Войти
         </button>
       </form>
     </div>
